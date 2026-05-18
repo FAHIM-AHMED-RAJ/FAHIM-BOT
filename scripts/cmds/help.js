@@ -6,7 +6,12 @@ let xfont = null;
 let yfont = null;
 let categoryEmoji = null;
 
-const HELP_GIF = "https://files.catbox.moe/2xzljw.mp4";
+const HELP_GIF = [
+  "https://files.catbox.moe/2xzljw.mp4",
+  "https://files.catbox.moe/hkuu1g.mp4",
+  "https://files.catbox.moe/s462pk.mp4",
+  "https://files.catbox.moe/zs1v3i.mp4"
+];
 
 async function loadResources() {
   try {
@@ -89,40 +94,63 @@ module.exports = {
         msg += `│⚡ ${fontConvert(c)}\n`;
       msg += `╰────────────✰\n`;
       msg += `> TOTAL: ${categories[cat].length}\n> PREFIX: ${prefix}`;
+
       return message.reply({
         body: msg,
-        attachment: await getStreamFromURL(HELP_GIF)
+        attachment: await getStreamFromURL(
+          HELP_GIF[Math.floor(Math.random() * HELP_GIF.length)]
+        )
       });
     }
 
     // Main menu
     if (!input) {
       let msg = `╭───────❁\n│✨ 𝐅 𝐀 𝐇 𝐈 𝐌 𝗛𝗘𝗟𝗣 𝗟𝗜𝗦𝗧 ✨\n╰────────────❁\n`;
+
       for (const cat of Object.keys(categories).sort()) {
         msg += `╭─────✰『 ${getCategoryEmoji(cat)} ${fontConvert(cat, "category")} 』\n`;
+
         for (const c of categories[cat].sort())
           msg += `│⚡ ${fontConvert(c)}\n`;
+
         msg += `╰────────────✰\n`;
       }
+
       const total = Object.values(categories).reduce((a, b) => a + b.length, 0);
+
       msg += `╭─────✰[🌟 𝐄𝐍𝐉𝐎𝐘 🌟]\n│> TOTAL COMMANDS: [${total}]\n│\n│> TYPE: [ ${prefix}HELP <COMMAND> ]\n│\n│> FB.LINK: [https://m.me/fahim.ahmed.raj.207]\n╰────────────✰\n`;
+
       msg += `╭─────✰\n│ 💖 𝗦𝗜𝗭𝗨𝗞𝗔-𝗕𝗢𝗧 💖\n╰────────────✰`;
 
       return message.reply({
         body: msg,
-        attachment: await getStreamFromURL(HELP_GIF)
+        attachment: await getStreamFromURL(
+          HELP_GIF[Math.floor(Math.random() * HELP_GIF.length)]
+        )
       });
     }
 
     // Command info
     const cmd = findCommand(input);
-    if (!cmd) return message.reply(`❌ Command "${input}" not found`);
+
+    if (!cmd)
+      return message.reply(`❌ Command "${input}" not found`);
+
     const c = cmd.config;
-    const aliasText = Array.isArray(c.aliases) ? c.aliases.join(", ") : c.aliases || "None";
+
+    const aliasText = Array.isArray(c.aliases)
+      ? c.aliases.join(", ")
+      : c.aliases || "None";
+
     let usage = "No usage";
+
     if (c.guide) {
-      if (typeof c.guide === "string") usage = c.guide;
-      else if (typeof c.guide === "object") usage = c.guide.en || Object.values(c.guide)[0] || "No usage";
+      if (typeof c.guide === "string")
+        usage = c.guide;
+
+      else if (typeof c.guide === "object")
+        usage = c.guide.en || Object.values(c.guide)[0] || "No usage";
+
       usage = usage.replace(/{pn}/g, `${prefix}${c.name}`);
     }
 
@@ -141,7 +169,9 @@ module.exports = {
 
     return message.reply({
       body: infoMsg,
-      attachment: await getStreamFromURL(HELP_GIF)
+      attachment: await getStreamFromURL(
+        HELP_GIF[Math.floor(Math.random() * HELP_GIF.length)]
+      )
     });
   }
 };
