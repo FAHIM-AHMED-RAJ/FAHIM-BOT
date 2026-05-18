@@ -27,7 +27,7 @@ module.exports = {
 		} catch (e) {}
 
 		// ২. পার্সোনালাইজড লোডিং মেসেজ
-		const loadingMsg = await message.reply("⚡ 𝗙𝗔𝗥𝗛𝗔𝗡 𝗕𝗢𝗦𝗦 𝗔𝗥 𝗩𝗜𝗗𝗘𝗢 𝗟𝗢𝗔𝗗𝗜𝗡𝗚 𝗛𝗢𝗦𝗦𝗘... ⚡");
+		const loadingMsg = await message.reply("⚡ 𝗙𝗔𝐇𝐈𝐌 𝗕𝗢𝗦𝗦 𝗔𝗥 𝗩𝗜𝗗𝗘𝗢 𝗟𝗢𝗔𝗗𝗜𝗡𝗚 𝗛𝗢𝗦𝗦𝗘... ⚡");
 
 		const data = [
 			{
