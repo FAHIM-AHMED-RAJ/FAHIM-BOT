@@ -77,7 +77,7 @@ module.exports = {
 			const randomItem = data[Math.floor(Math.random() * data.length)];
 
 			// ৪. ইনবক্স লিংক এবং বস মেসেজ স্টাইল
-			const footer = `\n✢━━━━━━━━━━━━━━━✢\n--❖(✷‿𝐒𝐈𝐙𝐔𝐊𝐀-𝐁𝐎𝐓‿✷)❖--\n✢━━━━━━━━━━━━━━━✢\n[ফা্ঁর্ঁহা্ঁন্ঁ ব্ঁসে্ঁর্ঁ ভ্ঁয়ে্ঁস্ঁ ভি্ঁডি্ঁও্ঁ]\n✢━━━━━━━━━━━━━━━✢\n(✷‿𝐎𝐖𝐍𝐄𝐑:-𝐑𝐉-𝐅𝐀𝐑𝐇𝐀𝐍‿✷)`;
+			const footer = `\n✢━━━━━━━━━━━━━━━✢\n--❖(✷‿𓆩»̶̶͓͓͓̽̽̽𝆠꯭፝֟ᴍᴜꜱɪᴄ_ʙᴏᴛ𝆠꯭፝֟𝆠꯭፝֟𓆪🎀🎧‿✷)❖--\n✢━━━━━━━━━━━━━━━✢\n[ফা্ঁহি্ঁম্ঁ ব্ঁসে্ঁর্ঁ ভ্ঁয়ে্ঁস্ঁ ভি্ঁডি্ঁও্ঁ]\n✢━━━━━━━━━━━━━━━✢\n(✷‿𝐎𝐖𝐍𝐄𝐑:-𝗙𝗔𝗛𝗜𝗠‿✷)`;
 
 			// ৫. ভিডিও স্ট্রিম নেওয়া
 			const videoStream = await global.utils.getStreamFromURL(randomItem.link);
@@ -95,7 +95,7 @@ module.exports = {
 		} catch (error) {
 			console.error(error);
 			api.setMessageReaction("❌", messageID, () => {}, true);
-			message.reply("video load hote error hoyeche!");
+			message.reply("video load hote error hoyeche 𝗕𝗕𝗬 𝗦𝗢𝗥𝗥𝗬!");
 		}
 	}
 };
