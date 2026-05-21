@@ -51,7 +51,7 @@ module.exports = {
       "গুড নাইট": "https://files.catbox.moe/i29m4q.mp3",
 
       "good morning": "https://files.catbox.moe/8gzqx5.mp3",
-      "গুড মর্নিং": "https://files.catbox.moe/8gzqx5.mp3"
+      "valobasi": "https://files.catbox.moe/s4ksgt.mp3"
     };
 
     if (voiceMap[input]) {
