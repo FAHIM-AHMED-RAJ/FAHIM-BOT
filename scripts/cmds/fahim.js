@@ -21,7 +21,6 @@ module.exports = {
 
     if (!text.includes("fahim")) return;
 
-    // 🎬 Video list
     const videos = [
       "https://files.catbox.moe/fxre5k.mp4",
       "https://files.catbox.moe/zkfe54.mp4",
@@ -57,7 +56,29 @@ module.exports = {
       "https://files.catbox.moe/f8xkp2.mp4",
       "https://files.catbox.moe/7ng9cb.mp4",
       "https://files.catbox.moe/mhi9ty.mp4",
-      "https://files.catbox.moe/91pi11.mp4"
+      "https://files.catbox.moe/91pi11.mp4","https://files.catbox.moe/tohxxe.mp4",
+      "https://files.catbox.moe/7iunr8.mp4",
+      "https://files.catbox.moe/988yxx.mp4",
+      "https://files.catbox.moe/y3i1np.mp4",
+      "https://files.catbox.moe/a36r4q.mp4",
+      "https://files.catbox.moe/vmfxka.mp4",
+      "https://files.catbox.moe/3zpm82.mp4",
+      "https://files.catbox.moe/xe7ylb.mp4",
+      "https://files.catbox.moe/jo77w4.mp4",
+      "https://files.catbox.moe/pzo521.mp4",
+      "https://files.catbox.moe/858ngn.mp4",
+      "https://files.catbox.moe/yc1d9n.mp4",
+      "https://files.catbox.moe/6ncvi8.mp4",
+      "https://files.catbox.moe/5qijmn.mp4",
+      "https://files.catbox.moe/2jd36v.mp4",
+      "https://files.catbox.moe/7pka26.mp4",
+      "https://files.catbox.moe/h5hqho.mp4",
+      "https://files.catbox.moe/d6xs2g.mp4",
+      "https://files.catbox.moe/kbcm3x.mp4",
+      "https://files.catbox.moe/miv4ii.mp4",
+      "https://files.catbox.moe/7pntx5.mp4",
+      "https://files.catbox.moe/7ituuz.mp4",
+      "https://files.catbox.moe/8ec66g.mp4"
     ];
 
     const videoUrl = videos[videoIndex];
