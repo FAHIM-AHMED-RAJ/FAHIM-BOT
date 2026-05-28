@@ -6,104 +6,99 @@ const path = require("path");
 module.exports = {
   config: {
     name: "video",
-    version: "2.2.2",
-    author: "MR_FARHAN",
+    version: "3.0.0",
+    author: "MR_FARHAN (GPT FIXED)",
     countDown: 5,
     role: 0,
-    shortDescription: "Search & download YouTube videos",
-    longDescription: "Search YouTube videos by name and download without prefix",
-    category: "media",
-    guide: {
-      en: "video <video name>"
-    }
+    shortDescription: "YouTube video downloader",
+    category: "media"
   },
 
   onStart: async function ({ api, event, args }) {
-    const { threadID, messageID, body } = event;
-    const creatorName = "Farhan Khan";
+    const { threadID, messageID } = event;
 
-    let query = args.join(" ");
-    
-    // Handling No-prefix input
-    if (!query && body) {
-      query = body.replace(/^video\s+/i, "").trim();
-    }
+    let query = args.join(" ").trim();
 
-    // Your requested English error message and example
     if (!query || query.toLowerCase() === "video") {
       return api.sendMessage(
-        `❌ Please provide a song name.\n📌 Example: video Let Me Love You`,
+        "❌ Give a video name\n📌 Example: video mr beast",
         threadID,
         messageID
       );
     }
 
-    let tempMsgID = null;
+    let tempMsg;
 
     try {
-      const searching = await api.sendMessage(
-        `🔍 Searching\n━━━━━━━━━━━━━━━\n📌 Query: ${query}\n⏳ Please wait...`,
+      tempMsg = await api.sendMessage(
+        `🔍 Searching video...\n⏳ Please wait`,
         threadID
       );
-      tempMsgID = searching.messageID;
 
-      // Searching using BetaDash API
+      // 🔥 SEARCH API (SAFE HANDLING)
       const searchRes = await axios.get(
         `https://betadash-search-download.vercel.app/yt?search=${encodeURIComponent(query)}`
       );
 
-      const video = searchRes.data?.[0];
-      if (!video || !video.url) throw new Error("No results found.");
+      const data = searchRes.data;
+      const video = Array.isArray(data) ? data[0] : data?.results?.[0];
 
-      await api.unsendMessage(tempMsgID).catch(() => {});
+      if (!video?.url) throw new Error("No video found");
+
+      // update message
+      if (tempMsg?.messageID) {
+        api.unsendMessage(tempMsg.messageID).catch(() => {});
+      }
 
       const downloading = await api.sendMessage(
-        `🎬 Video Found\n━━━━━━━━━━━━━━━\n📖 Title: ${video.title}\n⬇️ Downloading...`,
+        `🎬 Found:\n📌 ${video.title}\n⬇️ Downloading...`,
         threadID
       );
-      tempMsgID = downloading.messageID;
 
-      // Getting download link using Imran API
+      // 🔥 DOWNLOAD API SAFE
       const dlRes = await axios.get(
-        `https://yt-api-imran.vercel.app/api?url=${video.url}`
+        `https://yt-api-imran.vercel.app/api?url=${encodeURIComponent(video.url)}`
       );
 
       const downloadUrl = dlRes.data?.downloadUrl;
-      if (!downloadUrl) throw new Error("Download link not available.");
+      if (!downloadUrl) throw new Error("Download failed");
 
-      // Fetching the video buffer
       const buffer = (
         await axios.get(downloadUrl, { responseType: "arraybuffer" })
       ).data;
 
-      const cacheDir = path.join(process.cwd(), "cache");
-      await fs.ensureDir(cacheDir);
+      const filePath = path.join(
+        process.cwd(),
+        "cache",
+        `video_${Date.now()}.mp4`
+      );
 
-      const filePath = path.join(cacheDir, `video_${Date.now()}.mp4`);
+      await fs.ensureDir(path.dirname(filePath));
       await fs.writeFile(filePath, buffer);
 
-      const finalMessage = {
-        body:
-          `━━━━━━━━━━━━━━━━━━\n` +
-          `🎬 VIDEO READY\n` +
-          `━━━━━━━━━━━━━━━━━━\n` +
-          `📖 Title: ${video.title}\n` +
-          `⏱ Duration: ${video.time}\n` +
-          `🖌️ Power by: ${creatorName}\n` +
-          `━━━━━━━━━━━━━━━━━━`,
-        attachment: fs.createReadStream(filePath)
-      };
+      await api.sendMessage(
+        {
+          body: `🎬 VIDEO READY\n━━━━━━━━━━━━━━\n📌 ${video.title}`,
+          attachment: fs.createReadStream(filePath)
+        },
+        threadID,
+        () => fs.unlinkSync(filePath),
+        messageID
+      );
 
-      await api.sendMessage(finalMessage, threadID, async () => {
-        if (fs.existsSync(filePath)) await fs.unlink(filePath);
-      }, messageID);
-
-      if (tempMsgID) await api.unsendMessage(tempMsgID).catch(() => {});
+      if (downloading?.messageID) {
+        api.unsendMessage(downloading.messageID).catch(() => {});
+      }
 
     } catch (err) {
-      if (tempMsgID) await api.unsendMessage(tempMsgID).catch(() => {});
-      api.sendMessage(
-        `❌ Failed\n━━━━━━━━━━━━━━━\n${err.message || "An unexpected error occurred."}`,
+      console.log(err);
+
+      if (tempMsg?.messageID) {
+        api.unsendMessage(tempMsg.messageID).catch(() => {});
+      }
+
+      return api.sendMessage(
+        `❌ Error: ${err.message || "Something went wrong"}`,
         threadID,
         messageID
       );
