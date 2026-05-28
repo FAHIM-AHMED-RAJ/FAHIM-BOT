@@ -1,51 +1,92 @@
-const A = require("axios");
-const B = require("fs-extra");
-const C = require("path");
+const axios = require("axios");
+const fs = require("fs-extra");
+const path = require("path");
 
-const JSN = "https://raw.githubusercontent.com/aryannix/stuffs/master/raw/apis.json";
+const API_JSON =
+  "https://raw.githubusercontent.com/aryannix/stuffs/master/raw/apis.json";
 
 module.exports = {
   config: {
     name: "sound",
-    version: "0.0.1",
-    author: "MR_FARHAN",
+    version: "2.0.0",
+    author: "MR_FARHAN (GPT UPGRADE)",
     countDown: 5,
     role: 0,
     category: "media"
   },
 
   onStart: async function ({ api, event, args }) {
-    const { threadID: t, messageID: m } = event;
-    const q = args.join(" ");
-    if (!q) return api.sendMessage("• Please provide a sound name.", t, m);
+    const { threadID, messageID } = event;
+    let query = args.join(" ").trim();
 
-    api.setMessageReaction("⏳", m, () => {}, true);
+    if (!query) {
+      return api.sendMessage(
+        "❌ Please provide a sound name OR type 'trending'",
+        threadID,
+        messageID
+      );
+    }
+
+    api.setMessageReaction("⏳", messageID, () => {}, true);
 
     try {
-      const D = await A.get(JSN);
-      const E = D.data.api;
+      // GET API BASE
+      const config = await axios.get(API_JSON);
+      const baseApi = config.data?.api;
+      if (!baseApi) throw new Error("API missing");
 
-      const r = await A.get(`${E}/soundmeme?q=${encodeURIComponent(q)}`);
-      const d = r.data.results[0];
+      let url;
 
-      if (!d || !d.sound) throw new Error();
+      // 🔥 TRENDING MODE
+      if (query.toLowerCase() === "trending") {
+        url = `${baseApi}/soundmeme?trending=true`;
+      } else {
+        url = `${baseApi}/soundmeme?q=${encodeURIComponent(query)}`;
+      }
 
-      const p = C.join(__dirname, "cache", `snd_${Date.now()}.mp3`);
-      await B.ensureDir(C.dirname(p));
+      const res = await axios.get(url);
+      const result = res.data?.results?.[0];
 
-      const au = await A.get(d.sound, { responseType: "arraybuffer" });
-      B.writeFileSync(p, Buffer.from(au.data));
+      if (!result?.sound) {
+        throw new Error("No sound found");
+      }
 
-      api.setMessageReaction("✅", m, () => {}, true);
+      const filePath = path.join(
+        __dirname,
+        "cache",
+        `sound_${Date.now()}.mp3`
+      );
 
-      await api.sendMessage({
-        body: `🎵 𝗦𝗼𝘂𝗻𝗱: ${d.title}`,
-        attachment: B.createReadStream(p)
-      }, t, () => B.unlinkSync(p), m);
+      await fs.ensureDir(path.dirname(filePath));
 
-    } catch (e) {
-      api.setMessageReaction("❌", m, () => {}, true);
-      return api.sendMessage("• Sound not found.", t, m);
+      const audio = await axios.get(result.sound, {
+        responseType: "arraybuffer"
+      });
+
+      await fs.writeFile(filePath, Buffer.from(audio.data));
+
+      api.setMessageReaction("✅", messageID, () => {}, true);
+
+      return api.sendMessage(
+        {
+          body: `🎧 SOUND READY\n━━━━━━━━━━━━━━\n\n🎵 ${result.title || "Unknown"}`,
+          attachment: fs.createReadStream(filePath)
+        },
+        threadID,
+        () => fs.unlinkSync(filePath),
+        messageID
+      );
+
+    } catch (err) {
+      console.error(err);
+
+      api.setMessageReaction("❌", messageID, () => {}, true);
+
+      return api.sendMessage(
+        "❌ Sound not found or API error",
+        threadID,
+        messageID
+      );
     }
   }
 };
