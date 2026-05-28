@@ -1,75 +1,82 @@
 const axios = require("axios");
 
-const mahmud = async () => {
-  const base = await axios.get("https://raw.githubusercontent.com/mahmudx7/HINATA/main/baseApiUrl.json");
-  return base.data.mahmud;
+const getBase = async () => {
+  const res = await axios.get(
+    "https://raw.githubusercontent.com/mahmudx7/HINATA/main/baseApiUrl.json"
+  );
+  return res.data.mahmud;
 };
-
-/**
-* @author MahMUD
-* @author: do not delete it
-*/
 
 module.exports = {
   config: {
     name: "4k",
-    version: "1.7",
-    author: "MahMUD",
+    version: "1.8",
+    author: "MahMUD (FIXED)",
     countDown: 10,
     role: 0,
     category: "AI",
-    description: "Enhance or restore image quality using 4k AI.",
-    guide: {
-      en: "{pn} [url] or reply with image"
-    }
+    description: "Enhance image to 4K quality"
   },
 
-  onStart: async function ({ message, event, args }) {
-    
-    const obfuscatedAuthor = String.fromCharCode(77, 97, 104, 77, 85, 68); 
-    if (module.exports.config.author !== obfuscatedAuthor) {
-      return api.sendMessage("You are not authorized to change the author name.", event.threadID, event.messageID);
-    }
-    const startTime = Date.now();
-    let imgUrl;
+  onStart: async function ({ api, event, args, message }) {
+    const { threadID, messageID } = event;
 
+    let imgUrl = null;
+
+    // 📌 reply image
     if (event.messageReply?.attachments?.[0]?.type === "photo") {
       imgUrl = event.messageReply.attachments[0].url;
     }
 
+    // 📌 url input
     else if (args[0]) {
       imgUrl = args.join(" ");
     }
 
     if (!imgUrl) {
-      return message.reply("Baby, Please reply to an image or provide an image URL");
+      return message.reply("❌ Reply to an image or provide image URL");
     }
-  
-    const waitMsg = await message.reply("𝐋𝐨𝐚𝐝𝐢𝐧𝐠 𝟒𝐤 𝐢𝐦𝐚𝐠𝐞...𝐰𝐚𝐢𝐭 𝐛𝐚𝐛𝐲 <😘");
-    message.reaction("😘", event.messageID);
+
+    let waitMsg;
 
     try {
-      
-      const apiUrl = `${await mahmud()}/api/hd?imgUrl=${encodeURIComponent(imgUrl)}`;
+      waitMsg = await message.reply("🎨 Enhancing to 4K... please wait");
 
-      const res = await axios.get(apiUrl, { responseType: "stream" });
-      if (waitMsg?.messageID) message.unsend(waitMsg.messageID);
+      const base = await getBase();
 
-      message.reaction("✅", event.messageID);
+      const apiUrl = `${base}/api/hd?imgUrl=${encodeURIComponent(imgUrl)}`;
 
-      const processTime = ((Date.now() - startTime) / 1000).toFixed(2);
-
-      message.reply({
-        body: `✅ | 𝐇𝐞𝐫𝐞'𝐬 𝐲𝐨𝐮𝐫 𝟒𝐤 𝐢𝐦𝐚𝐠𝐞 𝐛𝐚𝐛𝐲`,
-        attachment: res.data
+      const res = await axios.get(apiUrl, {
+        responseType: "stream",
+        timeout: 60000
       });
 
-    } catch (error) {
-  
-      if (waitMsg?.messageID) message.unsend(waitMsg.messageID);
+      // remove loading message
+      if (waitMsg?.messageID) {
+        api.unsendMessage(waitMsg.messageID).catch(() => {});
+      }
 
-      message.reaction("❎", event.messageID);
-      message.reply(`🥹error baby, contact 𝐅𝐀𝐇𝐈𝐌.`);
+      return api.sendMessage(
+        {
+          body: "✅ Here is your 4K enhanced image ✨",
+          attachment: res.data
+        },
+        threadID,
+        messageID
+      );
+
+    } catch (err) {
+      console.log(err);
+
+      if (waitMsg?.messageID) {
+        api.unsendMessage(waitMsg.messageID).catch(() => {});
+      }
+
+      return api.sendMessage(
+        "❌ Failed to enhance image",
+        threadID,
+        messageID
+      );
     }
   }
 };
