@@ -1,84 +1,97 @@
 const { getStreamsFromAttachment } = global.utils;
+
 const mediaTypes = ["photo", "png", "animated_image", "video", "audio"];
 
 const TARGET_THREAD_ID = "25012294875129251";
 
 module.exports = {
-	config: {
-		name: "call",
-		aliases: ["callad", "called"],
-		version: "1.6",
-		author: "Farhan",
-		countDown: 5,
-		role: 0,
-		shortDescription: {
-			en: "send message to admin bot"
-		},
-		longDescription: {
-			en: "send report, feedback, bug to admin"
-		},
-		category: "contacts admin",
-		guide: {
-			en: "{pn} <message>"
-		}
-	},
+  config: {
+    name: "call",
+    aliases: ["callad", "called"],
+    version: "1.7",
+    author: "Farhan (FIXED GPT)",
+    countDown: 5,
+    role: 0,
+    category: "admin"
+  },
 
-	onStart: async function ({ args, message, event, usersData, threadsData, api }) {
-		if (!args[0])
-			return message.reply("Please enter your message");
+  onStart: async function ({ args, message, event, usersData, threadsData, api }) {
+    if (!args[0]) {
+      return message.reply("❌ Please enter your message");
+    }
 
-		const { senderID, threadID, isGroup } = event;
-		const senderName = await usersData.getName(senderID);
+    const { senderID, threadID } = event;
 
-		const msg =
-			"==📨 USER MESSAGE 📨=="
-			+ `\n- User Name: ${senderName}`
-			+ `\n- User ID: ${senderID}`
-			+ (isGroup
-				? `\n- Sent from Group: ${(await threadsData.get(threadID)).threadName}`
-				: `\n- Sent from User`);
+    const senderName = await usersData.getName(senderID);
 
-		const formMessage = {
-			body: msg + `\n\nContent:\n${args.join(" ")}`,
-			mentions: [{
-				id: senderID,
-				tag: senderName
-			}],
-			attachment: await getStreamsFromAttachment(
-				[...event.attachments, ...(event.messageReply?.attachments || [])]
-					.filter(item => mediaTypes.includes(item.type))
-			)
-		};
+    let groupName = "Private Chat";
 
-		try {
-			const info = await api.sendMessage(formMessage, TARGET_THREAD_ID);
+    try {
+      const threadInfo = await threadsData.get(threadID);
+      groupName = threadInfo?.threadName || "Group Chat";
+    } catch {}
 
-			global.GoatBot.onReply.set(info.messageID, {
-				commandName: "call",
-				messageID: info.messageID,
-				threadID: threadID,
-				messageIDSender: event.messageID,
-				type: "replyToUser"
-			});
+    const msg =
+      "==📨 USER MESSAGE 📨==\n" +
+      `- Name: ${senderName}\n` +
+      `- UID: ${senderID}\n` +
+      `- From: ${groupName}\n\n` +
+      `📩 Message:\n${args.join(" ")}`;
 
-			return message.reply("✅ Your message has been sent to admin");
-		}
-		catch (err) {
-			console.error(err);
-			return message.reply("❌ Failed to send message to admin");
-		}
-	},
+    let attachments = [];
 
-	onReply: async function ({ event, api, Reply, args }) {
+    try {
+      attachments = await getStreamsFromAttachment(
+        [
+          ...(event.attachments || []),
+          ...(event.messageReply?.attachments || [])
+        ].filter(item => mediaTypes.includes(item.type))
+      );
+    } catch {}
 
-		if (event.threadID != TARGET_THREAD_ID) return;
+    const formMessage = {
+      body: msg,
+      mentions: [
+        {
+          id: senderID,
+          tag: senderName
+        }
+      ],
+      attachment: attachments
+    };
 
-		const { threadID } = Reply;
+    try {
+      const info = await api.sendMessage(formMessage, TARGET_THREAD_ID);
 
-		const replyMsg = {
-			body: "📩 Admin Reply:\n\n" + args.join(" ")
-		};
+      global.GoatBot.onReply.set(info.messageID, {
+        commandName: "call",
+        threadID: threadID,
+        userID: senderID
+      });
 
-		await api.sendMessage(replyMsg, threadID);
-	}
+      return message.reply("✅ Message sent to admin");
+    } catch (err) {
+      console.log(err);
+      return message.reply("❌ Failed to send message to admin");
+    }
+  },
+
+  onReply: async function ({ api, event, args, Reply }) {
+    if (!Reply) return;
+    if (event.threadID !== TARGET_THREAD_ID) return;
+
+    const userThread = Reply.threadID;
+    if (!userThread) return;
+
+    const text = args.join(" ");
+
+    try {
+      return api.sendMessage(
+        `📩 Admin Reply:\n\n${text}`,
+        userThread
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  }
 };
