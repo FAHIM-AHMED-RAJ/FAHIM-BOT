@@ -47,14 +47,14 @@ module.exports = {
       });
 
       const totalCommands = commands.size;
-      msg += `\n\n╭─────✰[🌟 𝐄𝐍𝐉𝐎𝐘 🌟]\n│> TOTAL COMMANDS: [${totalCommands}]\n│\n│> TYPE: [ ${prefix}HELP <COMMAND> ]\n│\n│> FB.LINK: [https://m.me/MR.MUNNA.220]\n╰────────────✰\n`;
-      msg += `\n╭─────✰\n│ 💖 𝗦𝗜𝗭𝗨𝗞𝗔-𝗕𝗢𝗧 💖\n╰────────────✰`; 
+      msg += `\n\n╭─────✰[🌟 𝐄𝐍𝐉𝐎𝐘 🌟]\n│> 𝗧𝗢𝗧𝗔𝗟 𝗖𝗢𝗠𝗠𝗔𝗡𝗗𝗦: [${totalCommands}]\n│\n│> 𝗧𝗜𝗣𝗘: [ ${prefix}𝗛𝗘𝗟𝗣 <𝗖𝗠𝗗> ]\n│\n│> FB.LINK: [https://m.me/𝗙𝗔𝗜𝗠.𝗕𝗛𝗔𝗜]\n╰────────────✰\n`;
+      msg += `\n╭─────✰\n│ 💖 𝗙𝗔𝗛𝗜𝗠-𝗕𝗢𝗧 💖\n╰────────────✰`; 
 
       // Random help image
       const helpListImages = [
-        "https://files.catbox.moe/its4fz.jpg",
-        "https://files.catbox.moe/f6ca9r.jpg",
-        "https://files.catbox.moe/imgtqv.jpg"
+        "https://i.imgur.com/cxSplwo.jpeg",
+        "https://i.imgur.com/rwisfrC.jpeg",
+        "https://files.catbox.moe/bfo96i.mp4"
       ];
       const helpListImage = helpListImages[Math.floor(Math.random() * helpListImages.length)];
 
